@@ -31,6 +31,7 @@
     "monitor.io": "^0.1.0",
     "request": "^2.72.0",
     "socket.io": "^1.5.0",
+    "socketio-jwt": "^4.5.0",
     "sqlite3": "^3.1.8",
     "yargs": "^5.0.0"
   },
