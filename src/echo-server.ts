@@ -4,6 +4,7 @@ import { Server } from './server';
 import { HttpApi } from './api';
 import { Log } from './log';
 
+const util = require('util');
 const packageFile = require('../package.json');
 
 /**
@@ -175,6 +176,7 @@ export class EchoServer {
      * @return {void}
      */
     broadcast(channel: string, message: any): boolean {
+        message.socket.monitor(message);
         if (message.socket && this.find(message.socket)) {
             return this.toOthers(this.find(message.socket), channel, message);
         } else {
@@ -234,6 +236,7 @@ export class EchoServer {
      */
     onSubscribe(socket: any): void {
         socket.on('subscribe', data => {
+            socket.monitor(data);
             this.channel.join(socket, data);
         });
     }
