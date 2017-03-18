@@ -1,6 +1,9 @@
 import { PresenceChannel } from './presence-channel';
 import { PrivateChannel } from './private-channel';
 import { Log } from './../log';
+import { Webhook } from './../webhooks';
+import { ChannelOccupied } from './../webhooks';
+import { ChannelVacated } from './../webhooks';
 
 export class Channel {
     /**
@@ -31,12 +34,15 @@ export class Channel {
      */
     presence: PresenceChannel;
 
+    webhook: Webhook;
+
     /**
      * Create a new channel instance.
      */
     constructor(private io, private options) {
         this.private = new PrivateChannel(options);
         this.presence = new PresenceChannel(io, options);
+        this.webhook = new Webhook(options);
 
         Log.success('Channels are ready.');
     }
@@ -93,6 +99,13 @@ export class Channel {
             }
 
             socket.leave(channel);
+            this.webhook.fire(new ChannelVacated(channel)).then(res => {
+                if (this.options.devMode) {
+                    Log.info(`[${new Date().toLocaleTimeString()}] - ${socket.id} webhook: ${channel} vacated`);
+                }
+            }, error => {
+                Log.error(error.reason);
+            });
 
             if (this.options.devMode) {
                 Log.info(`[${new Date().toLocaleTimeString()}] - ${socket.id} left channel: ${channel} (${reason})`);
@@ -163,6 +176,13 @@ export class Channel {
      * @param {string} channel
      */
     onJoin(socket: any, channel: string): void {
+        this.webhook.fire(new ChannelOccupied(channel)).then(res => {
+            if (this.options.devMode) {
+                Log.info(`[${new Date().toLocaleTimeString()}] - ${socket.id} webhook: ${channel} occupied`);
+            }
+        }, error => {
+            Log.error(error.reason);
+        });
         if (this.options.devMode) {
             Log.info(`[${new Date().toLocaleTimeString()}] - ${socket.id} joined channel: ${channel}`);
         }

@@ -18,6 +18,7 @@ export class EchoServer {
     public defaultOptions: any = {
         authHost: 'http://localhost',
         authEndpoint: '/broadcasting/auth',
+        webhookEndpoint: '/webhook/',
         clients: [],
         database: 'redis',
         databaseConfig: {
