@@ -5,6 +5,7 @@ import { HttpApi } from './api';
 import { Log } from './log';
 
 const util = require('util');
+var socketioJwt   = require("socketio-jwt");
 const packageFile = require('../package.json');
 
 /**
@@ -220,6 +221,12 @@ export class EchoServer {
      * @return {void}
      */
     onConnect(): void {
+        this.server.io.use(socketioJwt.authorize({
+          secret: this.options.jwtSecret,
+          handshake: true,
+          callback: 15000
+        }));
+
         this.server.io.on('connection', socket => {
             this.onSubscribe(socket);
             this.onUnsubscribe(socket);
